@@ -1,9 +1,11 @@
 {
-  "name": "dbsdk",
+  "name": "@s2/dbsdk",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build":"tsc -d ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -12,7 +14,6 @@
     "jdbc": "^0.7.6"
   },
   "dependencies": {
-    "any-db": "^2.2.1",
     "any-db-jdbc": "^1.0.0",
     "any-db-sqlite3": "^2.3.0"
   },
