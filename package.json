@@ -1,0 +1,26 @@
+{
+  "name": "dbsdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "resolutions": {
+    "jdbc": "^0.7.6"
+  },
+  "dependencies": {
+    "any-db": "^2.2.1",
+    "any-db-jdbc": "^1.0.0",
+    "any-db-sqlite3": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/any-db": "^2.1.32",
+    "@types/jest": "^27.0.3",
+    "jest": "^27.3.1",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.5.2"
+  }
+}
