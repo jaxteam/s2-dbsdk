@@ -77,7 +77,7 @@ export function getConnection(url: string) {
  * @returns 
  */
 
-export function getDatabaseInfo(metadata: any) {
+export function getMaxInfo(metadata: any) {
   const maxConfig = {
     "getMaxTablesInSelect": metadata.getMaxTablesInSelectSync(),
     "getMaxUserNameLength": metadata.getMaxUserNameLengthSync(),
@@ -97,19 +97,9 @@ export function getDatabaseInfo(metadata: any) {
     "getMaxColumnNameLength": metadata.getMaxColumnNameLengthSync(),
     "getMaxCharLiteralLength": metadata.getMaxCharLiteralLengthSync(),
     "getMaxCatalogNameLength": metadata.getMaxCatalogNameLengthSync(),
-    "getMaxBinaryLiteralLength": metadata.getMaxBinaryLiteralLengthSync(),
-    "getJDBCMinorVersion": metadata.getJDBCMinorVersionSync(),
-    "getJDBCMajorVersion": metadata.getJDBCMajorVersionSync(),
+    "getMaxBinaryLiteralLength": metadata.getMaxBinaryLiteralLengthSync(), 
     "getExtraNameCharacters": metadata.getExtraNameCharactersSync(),
-    "getDriverVersion": metadata.getDriverVersionSync(),
-    "getDriverName": metadata.getDriverNameSync(),
-    "getDriverMinorVersion": metadata.getDriverMinorVersionSync(),
-    "getDriverMajorVersion": metadata.getDriverMajorVersionSync(),
     "getDefaultTransactionIsolation": metadata.getDefaultTransactionIsolationSync(),
-    "getDatabaseProductVersion": metadata.getDatabaseProductVersionSync(),
-    "getDatabaseProductName": metadata.getDatabaseProductNameSync(),
-    "getDatabaseMinorVersion": metadata.getDatabaseMinorVersionSync(),
-    "getDatabaseMajorVersion": metadata.getDatabaseMajorVersionSync(),
     "allTablesAreSelectable": metadata.allTablesAreSelectableSync(),
     "allProceduresAreCallable": metadata.allProceduresAreCallableSync(),
     "autoCommitFailureClosesAllResultSets": metadata.autoCommitFailureClosesAllResultSetsSync(),
@@ -118,6 +108,27 @@ export function getDatabaseInfo(metadata: any) {
     "doesMaxRowSizeIncludeBlobs": metadata.doesMaxRowSizeIncludeBlobsSync(),
   }
   return maxConfig
+}
+
+/**
+ * 获取JDBC信息和数据库信息
+ * @param metadata 
+ * @returns 
+ */
+
+export function getDatabaseOrJdbcInfo(metadata: any){
+  return {
+    "getJDBCMinorVersion": metadata.getJDBCMinorVersionSync(),
+    "getJDBCMajorVersion": metadata.getJDBCMajorVersionSync(),
+    "getDriverVersion": metadata.getDriverVersionSync(),
+    "getDriverName": metadata.getDriverNameSync(),
+    "getDriverMinorVersion": metadata.getDriverMinorVersionSync(),
+    "getDriverMajorVersion": metadata.getDriverMajorVersionSync(),
+    "getDatabaseProductVersion": metadata.getDatabaseProductVersionSync(),
+    "getDatabaseProductName": metadata.getDatabaseProductNameSync(),
+    "getDatabaseMinorVersion": metadata.getDatabaseMinorVersionSync(),
+    "getDatabaseMajorVersion": metadata.getDatabaseMajorVersionSync()
+  }
 }
 
 
@@ -132,6 +143,15 @@ export function resultSetToArray(err: Error, resultset: any): Promise<[]> {
   })
 }
 
+/**
+ * 获取 schema 信息
+ * 
+ * @param metadata 
+ * @param catalogs 
+ * @param schemaPattern 
+ * @returns 
+ * [ { TABLE_SCHEM: 'SYSDBA', TABLE_CATALOG: '' } ]
+ */
 
 export function getSchema<T>(metadata: any, catalogs: string = "", schemaPattern: string = "%"): Promise<T[]> {
   return new Promise(function (resolve, reject) {
@@ -150,6 +170,8 @@ export function getSchema<T>(metadata: any, catalogs: string = "", schemaPattern
  * 获取 catalogs
  * @param metadata 
  * @returns 
+ * 
+ *   []
  */
 
 export function getCatalogs<T>(metadata: any): Promise<T[]> {
@@ -157,6 +179,32 @@ export function getCatalogs<T>(metadata: any): Promise<T[]> {
     metadata.getCatalogs(function (err: Error, resultSet: any) {
       if (err) reject(err)
       resultSetToArray(err, resultSet).then(function (array) {
+        resolve(array)
+      }).catch(function (err) {
+        reject(err)
+      })
+    })
+  })
+}
+
+
+/**
+ * 获取表类型数据
+ * @param metadata 
+ * @returns 
+ * 
+ * [
+      { TABLE_TYPE: 'SYSTEM TABLE' },
+      { TABLE_TYPE: 'TABLE' },
+      { TABLE_TYPE: 'VIEW' }
+    ]
+ */
+
+export function getTableTypes(metadata:any){
+  return new Promise((resolve,reject)=>{
+    metadata.getTableTypes(function (err:Error,resultset:ResultSet) {
+      if(err) reject(err)
+      resultSetToArray(err, resultset).then(function (array) {
         resolve(array)
       }).catch(function (err) {
         reject(err)
@@ -179,6 +227,41 @@ export function getTablesSync(metadata: any, schema: string) {
  * @param tableNamePattern 匹配table名称
  * @param types 指定表类型
  * @returns 
+ * 
+ * [
+      {
+        TABLE_CAT: null,
+        TABLE_SCHEM: 'SYSDBA',
+        TABLE_NAME: 'INDEX33555436',
+        TABLE_TYPE: null,
+        REMARKS: null,
+        TYPE_CAT: null,
+        TYPE_SCHEM: null,
+        TYPE_NAME: null,
+        SELF_REFERENCING_COL_NAME: null,
+        REF_GENERATION: null
+      },
+      {
+        TABLE_CAT: null,
+        TABLE_SCHEM: 'SYSDBA',
+        TABLE_NAME: 'INDEX33555437',
+        TABLE_TYPE: null,
+        REMARKS: null,
+        TYPE_CAT: null,
+        TYPE_SCHEM: null,
+        TYPE_NAME: null,
+        SELF_REFERENCING_COL_NAME: null,
+        REF_GENERATION: null
+      }
+    ]
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  */
 
 export function getTables<T>(metadata: any, catalog: string = '', schemaPattern: string = "%", tableNamePattern: string = "%", types: string = ""): Promise<T[]> {

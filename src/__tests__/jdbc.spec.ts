@@ -2,7 +2,7 @@
 import { Connection } from 'any-db';
 //@ts-ignore
 import * as  anyDBJDBC from 'any-db-jdbc'
-import { DriverConfig, getCatalogs, getConnection, getMetadata, getSchema, getTables } from "../jdbc";
+import { DriverConfig, getCatalogs, getConnection, getMetadata, getSchema, getTables, getTableTypes } from "../jdbc";
 import { registerDriver } from "../jdbc"
 import path from 'path'
 
@@ -25,7 +25,7 @@ describe('jdbc test', () => {
   it('jdbc registerDriver', () => {
 
    
-    expect(anyDBJDBC.configs).toHaveProperty("jdbcmysqllocalhost3306mysql", config)
+    expect(anyDBJDBC.configs).toHaveProperty("jdbcdm192.168.3.1285237", config)
   })
 
   it('jdbc geConnection', async () => {
@@ -49,7 +49,7 @@ describe('jdbc test', () => {
     const conn = await getConnection(config.url)
     const dbmd = await getMetadata(conn)
     const schema = await getSchema(dbmd,"","SYSDBA")
-    console.log(schema) 
+    console.log("schema",schema) 
     expect(schema.length).toBe(1)
   })
 
@@ -57,6 +57,7 @@ describe('jdbc test', () => {
     const conn = await getConnection(config.url)
     const dbmd = await getMetadata(conn)
     const catalogs = await getCatalogs(dbmd) 
+    console.log(catalogs,catalogs)
     expect(catalogs).toEqual([])
   })
 
@@ -64,6 +65,7 @@ describe('jdbc test', () => {
     const conn = await getConnection(config.url)
     const dbmd = await getMetadata(conn)
     const tables = await getTables(dbmd,'','SYSDBA','%','') 
+    // console.log("tables",tables)
     expect(tables).toBeTruthy() 
   })
 
@@ -73,5 +75,13 @@ describe('jdbc test', () => {
     const dbmd = await getMetadata(conn)
     const columns = await getTables(dbmd,'','SYSDBA','DDD','%')  
     expect(columns).toBeTruthy()
+  })
+
+  it('jdbc get table types',async function() {
+    const conn = await getConnection(config.url)
+    const dbmd = await getMetadata(conn)
+    const tableTypes = await getTableTypes(dbmd)  
+    console.log("tableTypes",tableTypes)
+    // expect(columns).toBeTruthy()
   })
 })
