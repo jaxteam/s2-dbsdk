@@ -1,22 +1,64 @@
 import { ResultSet } from 'any-db'
-import {addConnection, initSqlite3, listConnection} from '../sqlite3'
+import {addDatasource, deleteDatasource, initSqlite3, listDatasource,updteDatasource} from '../sqlite3'
 describe('TEST SQLITE3', () => {
   beforeEach(async function(){
-    await initSqlite3()
+    await initSqlite3('sqlite3://:memory')
   })
-  it('connect sqlite3', (done) => {
-    addConnection(["mysql","localhost","port"]).then((result:ResultSet)=>{
-      // expect(result).toHaveProperty("row")
+
+  it('init sqlite3 struct',async function(){
+    await initSqlite3('sqlite3://:memory')
+  })
+
+  it('connect sqlite3 add Datasource', (done) => {
+    const connect={
+      "name":"mysql",
+      "comment":"mysql for local",
+      "kind":"1",
+      "driver":"jdbc:mysql.cy.driver",
+      "url":"jdbc:mysql://root@127.0.0.1/mysql",
+      "user":"root",
+      "password":"root",
+      "host":"127.0.0.1",
+      "port":"3306",
+      "database":"mysql",
+      "chartset":"utf-8"
+    }
+    addDatasource(connect).then((result:ResultSet)=>{
       expect(result.rowCount).toEqual(1)
     }).finally(done)
   })
   
 
-  it('list connections',async ()=>{
-    await addConnection(["mysql","localhost","3306","root","password"]) 
-    await addConnection(["oracle","localhost","1521","root","root"]) 
-    const rs:ResultSet = await listConnection()
+  it('list Datasources',async ()=>{
+    
+    const rs:ResultSet = await listDatasource()
+    console.log(rs)
     expect(rs.rowCount).toEqual(2)
-    // done()
+  })
+
+  it("update Datasources with id 1 ",async ()=>{
+    const connect={
+      "name":"mysql1",
+      "comment":"mysql for local1",
+      "kind":"1",
+      "driver":"jdbc:mysql.cy.driver",
+      "url":"jdbc:mysql://root@127.0.0.1/mysql",
+      "user":"root",
+      "password":"root",
+      "host":"127.0.0.1",
+      "port":"3306",
+      "database":"mysql",
+      "chartset":"utf-8"
+    }
+    const rs:ResultSet = await updteDatasource(connect,1)
+    console.log(rs.fields)
+    expect(rs.affectedRows).toEqual(1)
+  })
+
+
+  it("delete Datasource id 1",async()=>{
+    const rs:ResultSet = await deleteDatasource(1)
+    console.log(rs)
+    expect(rs.rowCount).toEqual(1)
   })
 })

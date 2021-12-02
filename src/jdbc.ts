@@ -299,3 +299,13 @@ export function getColumns<T>(metadata: any, catalog: string = '', schemaPattern
     })
   })
 }
+
+
+export function query<T>(conn:Connection,sql:string,params:any[]):Promise<ResultSet>{
+  return new Promise(function(resolve,reject){
+    conn.query(sql,params,function(err:Error,resultset:ResultSet){
+      if(err) reject(err)
+      resolve(resultset) 
+    })
+  })
+}
