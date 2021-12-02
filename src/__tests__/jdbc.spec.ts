@@ -2,8 +2,8 @@
 import { Connection } from 'any-db';
 //@ts-ignore
 import * as  anyDBJDBC from 'any-db-jdbc'
-import { DriverConfig, getCatalogs, getConnection, getMetadata, getSchema, getTables, getTableTypes } from "../jdbc";
-import { registerDriver } from "../jdbc"
+import { DriverConfig, getCatalogsJdbc, getConnectionJdbc, getMetadataJdbc, getSchemaJdbc, getTablesJdbc, getTableTypesJdbc } from "../jdbc";
+import { registerDriverJdbc } from "../jdbc"
 import path from 'path'
 
 describe('jdbc test', () => {
@@ -20,67 +20,66 @@ describe('jdbc test', () => {
   };
 
   beforeAll(function(){
-    registerDriver(config)
+    registerDriverJdbc(config)
   })
-  it('jdbc registerDriver', () => {
-
-   
-    expect(anyDBJDBC.configs).toHaveProperty("jdbcdm192.168.3.1285237", config)
+  it.skip('jdbc registerDriver111', () => {
+    // console.log(anyDBJDBC.configs)
+    expect(anyDBJDBC.configs).toHaveProperty("jdbcdm192.168.3.1285237", {})
   })
 
   it('jdbc geConnection', async () => {
-    const conn = await getConnection(config.url)
+    const conn = await getConnectionJdbc(config.url)
     expect(conn).toHaveProperty("config",config)
   })
 
   it('jdbc get Metadata',async ()=>{
-    const conn = await getConnection(config.url)
-    const dbmd = await getMetadata(conn)
+    const conn = await getConnectionJdbc(config.url)
+    const dbmd = await getMetadataJdbc(conn)
     expect(dbmd).toBeDefined()
   })
 
   it('jdbc getSchema',async function(){
-    const conn = await getConnection(config.url)
-    const dbmd = await getMetadata(conn)
-    const schema = await getSchema(dbmd)
+    const conn = await getConnectionJdbc(config.url)
+    const dbmd = await getMetadataJdbc(conn)
+    const schema = await getSchemaJdbc(dbmd)
     expect(schema.length).toBe(5)
   })
   it('jdbc getSchema with params',async function(){
-    const conn = await getConnection(config.url)
-    const dbmd = await getMetadata(conn)
-    const schema = await getSchema(dbmd,"","SYSDBA")
+    const conn = await getConnectionJdbc(config.url)
+    const dbmd = await getMetadataJdbc(conn)
+    const schema = await getSchemaJdbc(dbmd,"","SYSDBA")
     console.log("schema",schema) 
     expect(schema.length).toBe(1)
   })
 
   it('jdbc get Catalogs',async function(){
-    const conn = await getConnection(config.url)
-    const dbmd = await getMetadata(conn)
-    const catalogs = await getCatalogs(dbmd) 
+    const conn = await getConnectionJdbc(config.url)
+    const dbmd = await getMetadataJdbc(conn)
+    const catalogs = await getCatalogsJdbc(dbmd) 
     console.log(catalogs,catalogs)
     expect(catalogs).toEqual([])
   })
 
   it('jdbc get Tables',async function(){
-    const conn = await getConnection(config.url)
-    const dbmd = await getMetadata(conn)
-    const tables = await getTables(dbmd,'','SYSDBA','%','') 
+    const conn = await getConnectionJdbc(config.url)
+    const dbmd = await getMetadataJdbc(conn)
+    const tables = await getTablesJdbc(dbmd,'','SYSDBA','%','') 
     // console.log("tables",tables)
     expect(tables).toBeTruthy() 
   })
 
 
   it('jdbc get columns',async function() {
-    const conn = await getConnection(config.url)
-    const dbmd = await getMetadata(conn)
-    const columns = await getTables(dbmd,'','SYSDBA','DDD','%')  
+    const conn = await getConnectionJdbc(config.url)
+    const dbmd = await getMetadataJdbc(conn)
+    const columns = await getTablesJdbc(dbmd,'','SYSDBA','DDD','%')  
     expect(columns).toBeTruthy()
   })
 
   it('jdbc get table types',async function() {
-    const conn = await getConnection(config.url)
-    const dbmd = await getMetadata(conn)
-    const tableTypes = await getTableTypes(dbmd)  
+    const conn = await getConnectionJdbc(config.url)
+    const dbmd = await getMetadataJdbc(conn)
+    const tableTypes = await getTableTypesJdbc(dbmd)  
     console.log("tableTypes",tableTypes)
     // expect(columns).toBeTruthy()
   })

@@ -2,7 +2,7 @@ import { Connection, createConnection } from 'any-db';
 //@ts-ignore
 import * as  anyDBJDBC from 'any-db-jdbc'
 //@ts-ignore
-import ResultSet from 'jdbc/lib/resultset';
+import MetaDataResultSet from 'jdbc/lib/resultset';
 
 
 export interface DriverConfig {
@@ -21,7 +21,7 @@ export interface DriverConfig {
  * @param config DriverConfig
  */
 
-export function registerDriver(config: DriverConfig) {
+export function registerDriverJdbc(config: DriverConfig) {
   anyDBJDBC.registerConfig(config)
 }
 
@@ -31,11 +31,9 @@ export function registerDriver(config: DriverConfig) {
  * @returns Promise
  */
 
-export function getMetadata(connection: any) {
+export function getMetadataJdbc(connection: any) {
   return new Promise(function (resolve, reject) {
     const conn = connection.connection
-    // const metadata = conn.getMetaDataSync()
-    // resolve(metadata)
     conn.getMetaData(function (err: Error, metadata: any) {
       if (err) reject(err)
       resolve(metadata)
@@ -43,16 +41,6 @@ export function getMetadata(connection: any) {
   })
 }
 
-/**
- * 同步方法获取metadata
- * @param {*} connection 
- * @returns metadata
- */
-
-export function getMetadataSync(connection: any) {
-  const conn = connection.connection
-  return conn.getMetaDataSync()
-}
 
 /**
  * 创建新连接信息
@@ -61,7 +49,7 @@ export function getMetadataSync(connection: any) {
  * @returns Promise
  */
 
-export function getConnection(url: string) {
+export function getConnectionJdbc(url: string):Promise<Connection> {
   return new Promise(function (resolve, reject) {
     createConnection(url, function (err: Error, connection: Connection) {
       if (err) reject(err)
@@ -77,7 +65,7 @@ export function getConnection(url: string) {
  * @returns 
  */
 
-export function getMaxInfo(metadata: any) {
+export function getMaxInfoJdbc(metadata: any) {
   const maxConfig = {
     "getMaxTablesInSelect": metadata.getMaxTablesInSelectSync(),
     "getMaxUserNameLength": metadata.getMaxUserNameLengthSync(),
@@ -116,7 +104,7 @@ export function getMaxInfo(metadata: any) {
  * @returns 
  */
 
-export function getDatabaseOrJdbcInfo(metadata: any){
+export function getDatabaseOrJdbcInfoJdbc(metadata: any){
   return {
     "getJDBCMinorVersion": metadata.getJDBCMinorVersionSync(),
     "getJDBCMajorVersion": metadata.getJDBCMajorVersionSync(),
@@ -135,7 +123,7 @@ export function getDatabaseOrJdbcInfo(metadata: any){
 export function resultSetToArray(err: Error, resultset: any): Promise<[]> {
   return new Promise(function (resolve, reject) {
     if (err) reject(err)
-    const rs = new ResultSet(resultset)
+    const rs = new MetaDataResultSet(resultset)
     rs.toObjArray(function (err: Error, array: any) {
       if (err) reject(err)
       resolve(array)
@@ -153,7 +141,7 @@ export function resultSetToArray(err: Error, resultset: any): Promise<[]> {
  * [ { TABLE_SCHEM: 'SYSDBA', TABLE_CATALOG: '' } ]
  */
 
-export function getSchema<T>(metadata: any, catalogs: string = "", schemaPattern: string = "%"): Promise<T[]> {
+export function getSchemaJdbc<T>(metadata: any, catalogs: string = "", schemaPattern: string = "%"): Promise<T[]> {
   return new Promise(function (resolve, reject) {
     metadata.getSchemas(catalogs, schemaPattern, function (err: Error, resultSet: any) {
       if (err) reject(err)
@@ -174,7 +162,7 @@ export function getSchema<T>(metadata: any, catalogs: string = "", schemaPattern
  *   []
  */
 
-export function getCatalogs<T>(metadata: any): Promise<T[]> {
+export function getCatalogsJdbc<T>(metadata: any): Promise<T[]> {
   return new Promise(function (resolve, reject) {
     metadata.getCatalogs(function (err: Error, resultSet: any) {
       if (err) reject(err)
@@ -200,10 +188,11 @@ export function getCatalogs<T>(metadata: any): Promise<T[]> {
     ]
  */
 
-export function getTableTypes(metadata:any){
+export function getTableTypesJdbc(metadata:any){
   return new Promise((resolve,reject)=>{
-    metadata.getTableTypes(function (err:Error,resultset:ResultSet) {
+    metadata.getTableTypes(function (err:Error,resultset:MetaDataResultSet) {
       if(err) reject(err)
+      console.log(resultset)
       resultSetToArray(err, resultset).then(function (array) {
         resolve(array)
       }).catch(function (err) {
@@ -213,11 +202,7 @@ export function getTableTypes(metadata:any){
   })
 }
 
-export function getTablesSync(metadata: any, schema: string) {
-  const reusltset = metadata.getTablesSync('', schema, '%', null)
-  const rs = new ResultSet(reusltset)
-  return rs
-}
+
 
 /**
  * 获取 指定表
@@ -228,43 +213,9 @@ export function getTablesSync(metadata: any, schema: string) {
  * @param types 指定表类型
  * @returns 
  * 
- * [
-      {
-        TABLE_CAT: null,
-        TABLE_SCHEM: 'SYSDBA',
-        TABLE_NAME: 'INDEX33555436',
-        TABLE_TYPE: null,
-        REMARKS: null,
-        TYPE_CAT: null,
-        TYPE_SCHEM: null,
-        TYPE_NAME: null,
-        SELF_REFERENCING_COL_NAME: null,
-        REF_GENERATION: null
-      },
-      {
-        TABLE_CAT: null,
-        TABLE_SCHEM: 'SYSDBA',
-        TABLE_NAME: 'INDEX33555437',
-        TABLE_TYPE: null,
-        REMARKS: null,
-        TYPE_CAT: null,
-        TYPE_SCHEM: null,
-        TYPE_NAME: null,
-        SELF_REFERENCING_COL_NAME: null,
-        REF_GENERATION: null
-      }
-    ]
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
  */
 
-export function getTables<T>(metadata: any, catalog: string = '', schemaPattern: string = "%", tableNamePattern: string = "%", types: string = ""): Promise<T[]> {
+export function getTablesJdbc<T>(metadata: any, catalog: string = '', schemaPattern: string = "%", tableNamePattern: string = "%", types: string = ""): Promise<T[]> {
   return new Promise(function (resolve, reject) {
     metadata.getTables(catalog, schemaPattern, tableNamePattern, undefined, function (err: Error, resultSet: any) {
       if (err) reject(err)
@@ -287,7 +238,7 @@ export function getTables<T>(metadata: any, catalog: string = '', schemaPattern:
  * @returns 
  */
 
-export function getColumns<T>(metadata: any, catalog: string = '', schemaPattern: string = "%", tableNamePattern: string = "%", columnNamePattern: string = "%"): Promise<T[]> {
+export function getColumnsJdbc<T>(metadata: any, catalog: string = '', schemaPattern: string = "%", tableNamePattern: string = "%", columnNamePattern: string = "%"): Promise<T[]> {
   return new Promise(function (resolve, reject) {
     metadata.getTables(catalog, schemaPattern, tableNamePattern, columnNamePattern, function (err: Error, resultSet: any) {
       if (err) reject(err)
@@ -300,10 +251,17 @@ export function getColumns<T>(metadata: any, catalog: string = '', schemaPattern
   })
 }
 
+/**
+ * 执行SQL 语句
+ * @param conn 
+ * @param sql 
+ * @param params 
+ * @returns 
+ */
 
-export function query<T>(conn:Connection,sql:string,params:any[]):Promise<ResultSet>{
+export function queryJdbc<T>(conn:Connection,sql:string,params:any[]):Promise<MetaDataResultSet>{
   return new Promise(function(resolve,reject){
-    conn.query(sql,params,function(err:Error,resultset:ResultSet){
+    conn.query(sql,params,function(err:Error,resultset:MetaDataResultSet){
       if(err) reject(err)
       resolve(resultset) 
     })
