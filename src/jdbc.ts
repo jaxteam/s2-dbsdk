@@ -6,14 +6,16 @@ import MetaDataResultSet from 'jdbc/lib/resultset';
 
 
 export interface DriverConfig {
-  libpath: string
+  libpath?: string
+  host:string
+  port:string
   url: string
   user: string
   password?: string
   drivername: string
   minpoolsize?: number
   maxpoolsize?: number
-  properties: any
+  properties?: any
 }
 
 /**
@@ -51,7 +53,7 @@ export function getMetadataJdbc(connection: any) {
 
 export function getConnectionJdbc(url: string):Promise<Connection> {
   return new Promise(function (resolve, reject) {
-    createConnection(url, function (err: Error, connection: Connection) {
+    anyDBJDBC.createConnection(url, function (err: Error, connection: Connection) {
       if (err) reject(err)
       resolve(connection)
     })
@@ -240,7 +242,7 @@ export function getTablesJdbc<T>(metadata: any, catalog: string = '', schemaPatt
 
 export function getColumnsJdbc<T>(metadata: any, catalog: string = '', schemaPattern: string = "%", tableNamePattern: string = "%", columnNamePattern: string = "%"): Promise<T[]> {
   return new Promise(function (resolve, reject) {
-    metadata.getTables(catalog, schemaPattern, tableNamePattern, columnNamePattern, function (err: Error, resultSet: any) {
+    metadata.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern, function (err: Error, resultSet: any) {
       if (err) reject(err)
       resultSetToArray(err, resultSet).then(function (array) {
         resolve(array)
@@ -266,4 +268,20 @@ export function queryJdbc<T>(conn:Connection,sql:string,params:any[]):Promise<Me
       resolve(resultset) 
     })
   })
+}
+
+/**
+ * 打开数据库，使用数据库
+ * @param conn 
+ * @param database 
+ * @returns 
+ */
+
+export function useDatabase(conn:Connection,database:string){
+  return new Promise(function(resolve,reject){
+    conn.query(`use ${database};`,[],function(err:Error,resultset:MetaDataResultSet){
+      if(err) reject(err)
+      resolve(resultset) 
+    })
+  }) 
 }

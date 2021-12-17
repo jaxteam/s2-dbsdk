@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "any-db": "^2.2.1",
-    "any-db-jdbc": "^1.0.0",
+    "any-db-jdbc": "https://github.com/jaxchow/any-db-jdbc.git",
     "any-db-sqlite3": "^2.3.0"
   },
   "devDependencies": {
     "@types/any-db": "^2.1.32",
     "@types/jest": "^27.0.3",
-    "jest": "^27.3.1",
-    "ts-jest": "^27.0.7",
+    "jest": "^27.4.3",
+    "ts-jest": "^27.1.0",
     "typescript": "^4.5.2"
   }
 }

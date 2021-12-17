@@ -1,13 +1,13 @@
 import { ResultSet } from 'any-db'
-import {addDatasource, deleteDatasource, initSqlite3, listDatasource,updteDatasource} from '../sqlite3'
+import {addDatasource, deleteDatasource, initSqlite3, listDatasource,updateDatasource} from '../sqlite3'
 describe('TEST SQLITE3', () => {
   beforeEach(async function(){
-    await initSqlite3('sqlite3://:memory')
+    await initSqlite3('sqlite3:///tmp/sino.db')
   })
 
-  it('init sqlite3 struct',async function(){
-    await initSqlite3('sqlite3://:memory')
-  })
+  // it('init sqlite3 struct',async function(){
+  //   await initSqlite3('sqlite3:///tmp/aa')
+  // })
 
   it('connect sqlite3 add Datasource', (done) => {
     const connect={
@@ -50,7 +50,7 @@ describe('TEST SQLITE3', () => {
       "database":"mysql",
       "chartset":"utf-8"
     }
-    const rs:ResultSet = await updteDatasource(connect,1)
+    const rs:ResultSet = await updateDatasource(connect,1)
     console.log(rs.fields)
     expect(rs.affectedRows).toEqual(1)
   })

@@ -2,27 +2,31 @@
 import { Connection } from 'any-db';
 //@ts-ignore
 import * as  anyDBJDBC from 'any-db-jdbc'
-import { DriverConfig, getCatalogsJdbc, getConnectionJdbc, getMetadataJdbc, getSchemaJdbc, getTablesJdbc, getTableTypesJdbc } from "../jdbc";
+import { getCatalogsJdbc, getConnectionJdbc, getMetadataJdbc, getSchemaJdbc, getTablesJdbc, getTableTypesJdbc, queryJdbc, useDatabase  } from "../jdbc";
 import { registerDriverJdbc } from "../jdbc"
+import { DriverConfig } from '../interface';
 import path from 'path'
+import { execultSql } from '../dbsdk';
 
 describe('jdbc test', () => {
   var config: DriverConfig = {
     libpath: path.resolve(__dirname, './drivers/Dm7JdbcDriver18-7.6.0.jar'),
     drivername: 'dm.jdbc.driver.DmDriver',
-    url: 'jdbc:dm://192.168.3.128:5237',
-    user: 'SYSAUDITOR',
-    password: 'SYSAUDITOR',
+    host:"192.168.3.128",
+    port:"5237",
+    url: 'jdbc:dm://192.168.3.128:5237/SYSDBA',
+    user: 'SYSDBA',
+    password: 'SYSDBA',
     properties: {
-      user: 'SYSAUDITOR',
-      password: 'SYSAUDITOR'
+      user: 'SYSDBA',
+      password: 'SYSDBA'
     }
   };
 
   beforeAll(function(){
     registerDriverJdbc(config)
   })
-  it.skip('jdbc registerDriver111', () => {
+  it('jdbc registerDriver111', () => {
     // console.log(anyDBJDBC.configs)
     expect(anyDBJDBC.configs).toHaveProperty("jdbcdm192.168.3.1285237", {})
   })
@@ -83,4 +87,62 @@ describe('jdbc test', () => {
     console.log("tableTypes",tableTypes)
     // expect(columns).toBeTruthy()
   })
+
+  it("jdbc execute query",function(done){
+    const conn = getConnectionJdbc(config.url).then((conn)=>{
+      queryJdbc(conn,'select * from "SYSDBA"."DDD"',[]).then(function(result){
+        console.log(result)
+        // done()
+      }).finally(()=>done())
+    })
+  })
+
+
+  class JavaError extends Error{
+    getMessage(){
+      return this.message
+    }
+    getName(){
+      return this.name
+    }
+  }
+
+  it("jdbc execute query err",function(done){
+    const conn = getConnectionJdbc(config.url).then((conn)=>{
+      queryJdbc(conn,'select * from "SYS1DBA"."D1DD"',[]).then(function(result){
+        console.log(result)
+        // done()
+      }).catch((err:JavaError)=>{
+        //@ts-ignore
+        console.log(err.message)
+      }).finally(()=>done())
+    })
+  })
+
+  it('jdbc use database',function(done){
+    const conn = getConnectionJdbc(config.url).then((conn)=>{
+      useDatabase(conn,"SYSDBA").then(function(result){
+        console.log(result)
+        // done()
+      }).finally(()=>done())
+    })
+  })
+
+
+  it('dbsdk jdbc ',async function(){
+    const reuslt=await  execultSql("jdbc:dm://192.168.3.128:5237/SYSDBA",'select * from "SYSDBA"."DDD"',[])
+    console.log("reuslt",reuslt)
+    // done()
+  })
+  // it("jdbc test connection",function(done){
+  //   const conn = getConnectionJdbc("jdbc:dm://192.168.3.128:5237").then((conn)=>{
+  //     connectable(conn).then(function(result){
+  //       console.log(result)
+  //       // done()
+  //     }).finally(()=>done())
+  //   }) 
+  // })
+
+
+  
 })
